@@ -1,6 +1,6 @@
 {
-  "name": "FinVision",
-  "short_name": "FinVision",
+  "name": "CBQ",
+  "short_name": "CBQ",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
