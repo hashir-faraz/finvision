@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>FinVision</title>
+<style>
+  :root{
+    --maroon-900:#5E1129;
+    --maroon-800:#7C1836;
+    --maroon-700:#861F41;
+    --maroon-100:#EADDE1;
+    --gold-600:#B77505;
+    --gold-100:#FBF1DD;
+    --green-700:#1E7955;
+    --bg:#FDFCFD;
+    --surface:#FFFFFF;
+    --surface-muted:#F2E6E8;
+    --text-primary:#1A1617;
+    --text-muted:#756568;
+    --text-inverse:#FFFFFF;
+    --line:#EBE3E5;
+    --line-strong:#D1C0C4;
+    --shadow: 0 10px 30px rgba(134,31,65,0.10);
+  }
+
+  :root[data-theme="dark"]{
+    --maroon-900:#3A0F20;
+    --maroon-700:#9C294F;
+    --maroon-100:#3A232E;
+    --gold-600:#D79A3A;
+    --gold-100:#2A2013;
+    --green-700:#3FA377;
+    --bg:#0F1423;
+    --surface:#1A233A;
+    --surface-muted:#263351;
+    --text-primary:#F7F6F8;
+    --text-muted:#93A1C0;
+    --line:#2D3B59;
+    --line-strong:#41547A;
+    --shadow: 0 10px 30px rgba(0,0,0,0.45);
+  }
+
+  *{ box-sizing:border-box; }
+  html{ color-scheme: light; }
+
+  .acc-row .amount,
+  .acc-row .info .num,
+  .kv-row .v,
+  .tx-row .amt,
+  .tx-row .bal,
+  .card-row .info .num,
+  .iban-block .num,
+  .header-detail .titles .t2,
+  .greet .meta{
+    font-family: 'Sora', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color:var(--text-primary);
+    display:flex;
+    justify-content:center;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .frame{
+    width:100%;
+    max-width:430px;
+    min-height:100vh;
+    background:var(--bg);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  .screen{ display:none; }
+  .screen.active{ display:block; }
+
+  /* ---------- Splash screen ---------- */
+  #screen-splash{
+    min-height:100vh;
+    background:linear-gradient(160deg, var(--maroon-700), var(--maroon-900));
+  }
+  .splash-wrap{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:32px 28px;
+    color:var(--text-inverse);
+  }
+  .splash-mark{
+    width:64px; height:64px; border-radius:20px;
+    background:rgba(255,255,255,0.14);
+    border:1.5px solid rgba(255,255,255,0.35);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:20px;
+  }
+  .splash-title{
+    font-size:34px; font-weight:800; letter-spacing:-0.5px; margin-bottom:8px;
+  }
+  .splash-sub{
+    font-size:13.5px; opacity:0.85; font-weight:500; margin-bottom:32px;
+  }
+  .splash-disclaimer{
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.25);
+    border-radius:16px;
+    padding:16px 18px;
+    font-size:12.5px;
+    line-height:1.6;
+    font-weight:500;
+    text-align:left;
+    max-width:340px;
+    margin-bottom:28px;
+  }
+  .splash-disclaimer strong{ font-weight:800; }
+  .splash-btn{
+    background:#fff;
+    color:var(--maroon-700);
+    border:none;
+    border-radius:999px;
+    padding:14px 40px;
+    font-size:14.5px;
+    font-weight:800;
+    font-family:inherit;
+    cursor:pointer;
+  }
+
+  /* ---------- Dashboard / tab-screen header ---------- */
+  .header{
+    background:linear-gradient(160deg, var(--maroon-700), var(--maroon-900));
+    color:var(--text-inverse);
+    padding:18px 16px 22px;
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .avatar{
+    width:46px; height:46px; border-radius:50%;
+    background:rgba(255,255,255,0.14);
+    border:1.5px solid rgba(255,255,255,0.55);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:15px; letter-spacing:0.5px;
+    flex:none;
+  }
+  .greet{ flex:1; min-width:0; }
+  .greet .hi{ font-size:13px; opacity:0.85; font-weight:600; }
+  .greet .name{ font-size:17px; font-weight:800; margin-top:1px; }
+  .greet .meta{ font-size:11.5px; opacity:0.75; margin-top:4px; }
+  .header-icons{ display:flex; gap:14px; align-items:center; padding-top:3px; flex:none; }
+  .icon-btn{ position:relative; color:var(--text-inverse); opacity:0.92; cursor:pointer; }
+  .badge{
+    position:absolute; top:-5px; right:-6px;
+    background:var(--gold-600); color:#2A1E00;
+    font-size:9px; font-weight:800;
+    width:15px; height:15px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* ---------- Detail (sub-page) header ---------- */
+  .header-detail{
+    background:linear-gradient(160deg, var(--maroon-700), var(--maroon-900));
+    color:var(--text-inverse);
+    padding:16px 16px 20px;
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .header-detail .back{ flex:none; padding-top:3px; cursor:pointer; }
+  .header-detail .titles{ flex:1; min-width:0; }
+  .header-detail .titles .t1{ font-size:17px; font-weight:800; }
+  .header-detail .titles .t2{ font-size:12.5px; opacity:0.85; margin-top:4px; font-variant-numeric:tabular-nums; }
+  .header-detail .exit{ flex:none; padding-top:3px; opacity:0.9; cursor:pointer; }
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display:flex;
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{ display:none; }
+  .tab{
+    flex:none;
+    padding:14px 16px 12px;
+    font-size:13.5px;
+    font-weight:700;
+    color:var(--text-muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+    border-bottom:2.5px solid transparent;
+    cursor:pointer;
+  }
+  .tab.active{ color:var(--maroon-700); border-bottom-color:var(--maroon-700); }
+
+  /* ---------- Quick actions (dashboard pills) ---------- */
+  .quick-actions{
+    display:flex; gap:10px;
+    padding:14px 16px 4px;
+  }
+  .quick-actions .pill{
+    flex:1;
+    background:var(--maroon-700);
+    color:var(--text-inverse);
+    border-radius:12px;
+    padding:11px 8px;
+    font-size:11.5px;
+    font-weight:700;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    cursor:pointer;
+  }
+  .quick-actions .pill svg{ opacity:0.95; }
+
+  /* ---------- Icon actions (detail screen circles) ---------- */
+  .icon-actions{
+    display:flex; gap:26px; justify-content:center; flex-wrap:wrap;
+    padding:22px 16px 20px;
+    border-bottom:1px solid var(--line);
+  }
+  .icon-actions .item{
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:700; color:var(--text-primary);
+    cursor:pointer;
+  }
+  .icon-actions .circle{
+    width:52px; height:52px; border-radius:50%;
+    background:var(--maroon-700); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* ---------- Generic content wrapper ---------- */
+  .content{ padding:16px; display:flex; flex-direction:column; gap:14px; padding-bottom:96px; }
+
+  /* ---------- Section cards (collapsible, top-level) ---------- */
+  .section{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow: var(--shadow);
+  }
+  .section-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 16px;
+    background:var(--surface-muted);
+    font-weight:800;
+    font-size:14.5px;
+    cursor:pointer;
+  }
+  .section-head .left{ display:flex; align-items:center; gap:10px; color:var(--text-primary); }
+  .section-head .manage-link{ color:var(--maroon-700); font-weight:800; font-size:13px; margin-right:2px; }
+  .section-head .right-group{ display:flex; align-items:center; gap:10px; }
+  .section-head svg.chev{ transition:transform .2s ease; color:var(--text-muted); flex:none; }
+  .section-head.collapsed svg.chev{ transform:rotate(180deg); }
+
+  .acc-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 16px;
+    border-top:1px solid var(--line);
+    cursor:pointer;
+    transition:background .12s ease;
+  }
+  .acc-row:active{ background:var(--surface-muted); }
+  .acc-row .info .label{ color:var(--maroon-700); font-weight:800; font-size:14px; }
+  .acc-row .info .num{ font-size:12.5px; color:var(--text-muted); margin-top:3px; font-variant-numeric: tabular-nums; }
+  .acc-row .info .holder{ font-size:12px; color:var(--text-muted); margin-top:1px; }
+  .acc-row .amount{
+    display:flex; align-items:center; gap:6px;
+    font-weight:800; font-size:15px;
+    font-variant-numeric: tabular-nums;
+    white-space:nowrap;
+  }
+  .acc-row .amount .cur{ font-size:11.5px; font-weight:700; color:var(--text-muted); }
+  .acc-row .amount svg{ color:var(--text-muted); }
+
+  .body-collapsible{ overflow:hidden; transition:max-height .25s ease; }
+
+  .invest-prompt{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px;
+    padding:14px 16px;
+    border-top:1px solid var(--line);
+    font-size:13.5px;
+    font-weight:700;
+    color:var(--text-primary);
+    line-height:1.5;
+    cursor:pointer;
+  }
+  .invest-prompt .or{ color:var(--text-muted); font-weight:600; font-size:12px; }
+
+  /* ---------- Detail cards (account screens) ---------- */
+  .detail-card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:20px;
+    margin:0 16px 14px;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  .detail-card .dc-head{
+    padding:14px 16px;
+    background:var(--surface-muted);
+    font-weight:800;
+    font-size:13px;
+    letter-spacing:.3px;
+  }
+
+  /* ---------- Generic key/value row (reused: account cards + card summary) ---------- */
+  .kv-row{
+    display:flex; justify-content:space-between; gap:16px;
+    padding:14px 16px;
+    border-top:1px solid var(--line);
+  }
+  .kv-row .col.right{ text-align:right; }
+  .kv-row .k{
+    font-size:10.5px; font-weight:800; color:var(--maroon-700);
+    letter-spacing:.4px; text-transform:uppercase;
+    display:flex; align-items:center; gap:5px;
+  }
+  .kv-row .col.right .k{ justify-content:flex-end; }
+  .kv-row .k svg{ cursor:pointer; opacity:.85; flex:none; }
+  .kv-row .v{ font-size:14.5px; font-weight:800; margin-top:5px; font-variant-numeric:tabular-nums; }
+  .kv-row .v.name{ font-weight:700; font-size:13.5px; color:var(--text-primary); }
+
+  .iban-block{ padding:16px; text-align:center; border-top:1px solid var(--line); }
+  .iban-block .lbl{ font-size:11px; font-weight:800; color:var(--maroon-700); letter-spacing:.4px; text-transform:uppercase; }
+  .iban-block .num{ font-size:13.5px; font-weight:700; margin-top:6px; font-variant-numeric:tabular-nums; word-break:break-all; }
+  .iban-actions{ display:flex; justify-content:space-around; padding:14px 10px; border-top:1px solid var(--line); }
+  .iban-actions .item{ display:flex; flex-direction:column; align-items:center; gap:6px; font-size:11px; font-weight:700; color:var(--text-primary); cursor:pointer; }
+  .iban-actions svg{ color:var(--maroon-700); }
+
+  .tx-btn{
+    margin:0 16px 16px;
+    border:1.5px solid var(--maroon-700);
+    border-radius:20px;
+    padding:13px 14px;
+    display:flex; align-items:center; gap:12px;
+    background:var(--surface);
+    cursor:pointer;
+  }
+  .tx-btn .circle{ width:34px; height:34px; border-radius:50%; background:var(--maroon-700); color:#fff; display:flex; align-items:center; justify-content:center; flex:none; }
+  .tx-btn .label{ flex:1; font-weight:800; color:var(--maroon-700); font-size:14px; }
+  .tx-btn svg.chev{ color:var(--maroon-700); }
+
+  /* ---------- Appointment screen ---------- */
+  .appointment-body{ padding:18px 16px 6px; }
+  .appointment-body h2{ font-size:15px; color:var(--maroon-700); margin:0 0 10px; font-weight:800; }
+  .appointment-body p{ font-size:13.5px; color:var(--text-primary); line-height:1.6; margin:0; }
+
+  .dashed-row{
+    display:flex; align-items:center; gap:14px;
+    padding:20px 16px;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+  }
+  .dashed-row .dash-circle{
+    width:44px; height:44px; border-radius:50%;
+    border:1.5px dashed var(--text-muted);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-primary);
+    flex:none;
+  }
+  .dashed-row .label{ font-weight:700; font-size:14px; color:var(--text-primary); }
+
+  /* ---------- Important messages box (Cards screen) ---------- */
+  .important-box{
+    border:1.5px solid var(--maroon-700);
+    border-radius:20px;
+    padding:14px;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    cursor:pointer;
+  }
+  .important-box .emoji{ font-size:26px; line-height:1; flex:none; }
+  .important-box .txt{ flex:1; min-width:0; }
+  .important-box .txt .h{ color:var(--maroon-700); font-weight:800; font-size:14px; margin-bottom:4px; }
+  .important-box .txt p{ margin:0; font-size:12.5px; color:var(--text-primary); line-height:1.5; }
+  .important-box .right{ display:flex; align-items:center; gap:8px; flex:none; padding-top:2px; }
+  .important-box .badge2{ background:var(--gold-600); color:#2A1E00; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px; }
+
+  /* ---------- Nested sub-cards (Credit / Debit cards) ---------- */
+  .subcard{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:20px;
+    overflow:hidden;
+  }
+  .subcard-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:13px 14px;
+    font-weight:800;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+  .subcard-head .left{ display:flex; align-items:center; gap:8px; }
+
+  .card-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:14px;
+    border-top:1px solid var(--line);
+    cursor:pointer;
+  }
+  .card-row .info .label{ color:var(--maroon-700); font-weight:800; font-size:14px; }
+  .card-row .info .num{ font-size:13px; color:var(--text-primary); margin-top:4px; font-variant-numeric:tabular-nums; }
+  .card-row .info .holder{ font-size:12px; color:var(--text-muted); margin-top:2px; }
+  .card-row .info .tag{ font-size:11.5px; color:var(--maroon-700); font-weight:700; margin-top:2px; }
+  .card-row .right{ display:flex; align-items:center; gap:6px; flex:none; }
+  .card-row .right .activate{ color:var(--gold-600); font-weight:800; font-size:12px; }
+  .card-row .right svg{ color:var(--maroon-700); }
+
+  /* ---------- Activate card screen ---------- */
+  .activate-row{
+    display:flex; align-items:center;
+    padding:14px 16px;
+    border-top:1px solid var(--line);
+  }
+  .activate-row .label{
+    flex:0 0 38%;
+    font-size:13px; color:var(--text-muted); font-weight:600;
+    padding-right:12px; border-right:1px solid var(--line);
+  }
+  .activate-row .value{
+    flex:1; padding-left:14px;
+    font-size:13.5px; font-weight:700; color:var(--text-primary);
+    font-family:'Sora', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .activate-row .value.status{ color:var(--gold-600); font-weight:800; }
+
+  .activate-form-body{ padding:4px 16px 16px; }
+  .activate-form-body > p{ font-size:13px; color:var(--text-primary); line-height:1.6; margin:0 0 16px; }
+  .activate-inputs-row{ display:flex; gap:12px; margin-bottom:22px; }
+  .activate-inputs-row input{
+    flex:1; padding:12px; text-align:center;
+    border:1px solid var(--line); border-radius:12px;
+    font-family:'Sora', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size:13.5px; color:var(--text-primary); background:var(--surface);
+  }
+  .last4-label{ text-align:center; font-size:13px; font-weight:700; color:var(--text-primary); margin-bottom:14px; }
+  .last4-boxes{ display:flex; gap:10px; justify-content:center; margin-bottom:20px; }
+  .last4-boxes input{
+    width:46px; height:54px; text-align:center;
+    font-size:18px; font-weight:700; color:var(--text-primary);
+    border:1px solid var(--line); border-radius:12px;
+    font-family:'Sora', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .fill-details-link{
+    text-align:center; color:var(--maroon-700); font-weight:700; font-size:13px;
+    margin-bottom:20px; cursor:pointer;
+  }
+  .activate-submit{
+    display:block; width:calc(100% - 32px); margin:0 16px 24px;
+    background:var(--maroon-700); color:#fff; border:none; border-radius:999px;
+    padding:14px; font-weight:800; font-size:14.5px; font-family:inherit; cursor:pointer;
+  }
+
+  /* ---------- Transactions screen ---------- */
+  .tx-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:13px 16px;
+    border-top:1px solid var(--line);
+  }
+  .tx-row .left{ min-width:0; }
+  .tx-row .date{ font-size:11px; color:var(--text-muted); font-weight:700; }
+  .tx-row .desc{ font-size:13.5px; font-weight:700; color:var(--text-primary); margin-top:2px; }
+  .tx-row .bal{ font-size:11px; color:var(--text-muted); margin-top:3px; font-variant-numeric:tabular-nums; }
+  .tx-row .right{ display:flex; align-items:center; gap:12px; flex:none; }
+  .tx-row .amt{ font-weight:800; font-size:13.5px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .tx-row .amt.credit{ color:var(--green-700); }
+  .tx-row .amt.debit{ color:var(--maroon-700); }
+  .tx-empty{ padding:30px 16px; text-align:center; color:var(--text-muted); font-size:13px; }
+
+  /* ---------- Bottom nav ---------- */
+  .bottom-nav{
+    position:fixed;
+    bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:430px;
+    background:linear-gradient(180deg, var(--maroon-700), var(--maroon-900));
+    display:flex;
+    padding:10px 6px 14px;
+    z-index:20;
+  }
+  .nav-item{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    color:rgba(255,255,255,0.75);
+    font-size:10.5px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .nav-item.active{ color:#fff; }
+  .nav-item.active .dot{ width:16px; height:2.5px; background:#fff; border-radius:2px; margin-top:1px; }
+  .nav-item .dot{ height:2.5px; margin-top:1px; }
+
+  /* ---------- Modals ---------- */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(36,26,30,0.45);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:50;
+    padding:24px;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal-card{
+    background:var(--surface);
+    border-radius:20px;
+    padding:22px 20px 18px;
+    max-width:300px;
+    width:100%;
+    text-align:center;
+    box-shadow:0 20px 50px rgba(0,0,0,0.25);
+  }
+  .modal-card .modal-icon{
+    width:42px; height:42px; border-radius:50%;
+    background:var(--maroon-100);
+    color:var(--maroon-700);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 12px;
+  }
+  .modal-card p{ font-size:14px; font-weight:700; color:var(--text-primary); margin:0 0 16px; line-height:1.45; }
+  .modal-card button{
+    width:100%;
+    background:var(--maroon-700);
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    padding:11px;
+    font-size:13.5px;
+    font-weight:800;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .modal-card .two-btn{ display:flex; gap:10px; }
+  .modal-card .two-btn button{ flex:1; }
+  .modal-card button.secondary{ background:var(--surface-muted); color:var(--text-primary); border:1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<div class="frame" id="frame">
+
+  <!-- ============ SPLASH ============ -->
+  <div class="screen active" id="screen-splash">
+    <div class="splash-wrap">
+      <div class="splash-mark">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
+      </div>
+      <div class="splash-title">FinVision</div>
+      <div class="splash-sub">A personal, non-commercial finance visualizer</div>
+      <div class="splash-disclaimer">
+        <strong>Before you continue —</strong> this isn't a real banking app and it isn't connected to any bank. Figures on most screens are fictional, for personal motivation only. Savings and Regular Saver reflect statements you added yourself.
+      </div>
+      <button class="splash-btn" onclick="enterApp()">Continue</button>
+    </div>
+  </div>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div class="screen" id="screen-dashboard">
+
+    <div class="header">
+      <div class="avatar">AH</div>
+      <div class="greet">
+        <div class="hi">Welcome back</div>
+        <div class="name">Ahmad Hashir Faraz Syed</div>
+        <div class="meta">Updated 17 Sep 2026 · 9:04 AM</div>
+      </div>
+      <div class="header-icons">
+        <div class="icon-btn" onclick="notEligible()"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <div class="icon-btn" onclick="notEligible()"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
+        <div class="icon-btn" onclick="toggleTheme()" title="Toggle theme"><svg class="theme-icon-sun" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg class="theme-icon-moon" style="display:none" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+        Accounts
+      </div>
+      <div class="tab" onclick="showScreen('screen-appointment')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Appointments
+      </div>
+      <div class="tab" onclick="notEligible()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Connect
+      </div>
+      <div class="tab" onclick="notEligible()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Favorites
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <div class="pill" onclick="notEligible()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Reminders
+      </div>
+      <div class="pill" onclick="notEligible()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Offers
+      </div>
+      <div class="pill" onclick="notEligible()">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        My RM
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="section">
+        <div class="section-head" id="accHead" onclick="toggleSection('accBody', this, '600px')">
+          <div class="left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+            Accounts
+          </div>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        </div>
+        <div class="body-collapsible" id="accBody" style="max-height:600px;">
+
+          <div class="acc-row" onclick="showScreen('screen-savings')">
+            <div class="info">
+              <div class="label">Savings Account</div>
+              <div class="num">4530-756037-482</div>
+              <div class="holder">Ahmad Hashir Faraz Syed</div>
+            </div>
+            <div class="amount">
+              <span class="cur">QAR</span> <span id="dashSavingsAmt">52,513.20</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+          <div class="acc-row" onclick="showScreen('screen-saver')">
+            <div class="info">
+              <div class="label">Regular Saver Deposit</div>
+              <div class="num">4530-756037-219</div>
+              <div class="holder">Ahmad Hashir Faraz Syed</div>
+            </div>
+            <div class="amount">
+              <span class="cur">QAR</span> <span id="dashSaverAmt">7,979.51</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+          <div class="acc-row" onclick="showScreen('screen-margin')">
+            <div class="info">
+              <div class="label">Credit Card Margin Deposit</div>
+              <div class="num">4530-756037-903</div>
+              <div class="holder">Ahmad Hashir Faraz Syed</div>
+            </div>
+            <div class="amount">
+              <span class="cur">QAR</span> 2,200.00
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head" id="invHead" onclick="toggleSection('invBody', this, '200px')">
+          <div class="left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+            Investments
+          </div>
+          <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        </div>
+        <div class="body-collapsible" id="invBody" style="max-height:200px;">
+          <div class="invest-prompt" onclick="notEligible()">
+            <div>Open an Investment account<br><span class="or">or</span><br>Open a Trading account</div>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ SAVINGS ACCOUNT ============ -->
+  <div class="screen" id="screen-savings">
+    <div class="header-detail">
+      <div class="back" onclick="showScreen('screen-dashboard')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="titles">
+        <div class="t1">Savings Account</div>
+        <div class="t2">4530-756037-482</div>
+      </div>
+      <div class="exit" onclick="notEligible()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+    </div>
+
+    <div class="icon-actions">
+      <div class="item" onclick="notEligible()"><div class="circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M5 4H3v2a4 4 0 0 0 4 4M19 4h2v2a4 4 0 0 1-4 4"/></svg></div>My Goals</div>
+      <div class="item" onclick="notEligible()"><div class="circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>Debit Cards</div>
+      <div class="item" onclick="notEligible()"><div class="circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><polyline points="22 6 12 13 2 6"/></svg></div>Statements</div>
+      <div class="item" onclick="notEligible()"><div class="circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1.6"/><circle cx="19" cy="5" r="1.6"/><circle cx="5" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/><circle cx="19" cy="19" r="1.6"/><circle cx="5" cy="19" r="1.6"/></svg></div>More</div>
+    </div>
+
+    <div class="content" style="padding-left:0;padding-right:0;">
+      <div class="detail-card">
+        <div class="dc-head">Savings Account</div>
+        <div class="kv-row">
+          <div class="col"><div class="k">Account number</div><div class="v">4530-756037-482</div><div class="v name">Ahmad Hashir Faraz Syed</div></div>
+          <div class="col right"><div class="k">Available balance</div><div class="v">QAR <span id="savingsBalanceVal">52,513.20</span></div></div>
+        </div>
+        <div class="kv-row">
+          <div class="col"><div class="k">Amount on hold</div><div class="v">QAR 0.00</div></div>
+          <div class="col right"><div class="k">Overdraft limit</div><div class="v">QAR 0.00</div></div>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <div class="dc-head">IBAN details</div>
+        <div class="iban-block">
+          <div class="lbl">IBAN number</div>
+          <div class="num">QA62VLQA00000000453075637482</div>
+        </div>
+        <div class="iban-actions">
+          <div class="item" onclick="notEligible()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy IBAN</div>
+          <div class="item" onclick="notEligible()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Share QR</div>
+          <div class="item" onclick="notEligible()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>Share IBAN</div>
+        </div>
+      </div>
+
+      <div class="tx-btn" onclick="openTransactions('savings')">
+        <div class="circle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+        <div class="label">View Transactions</div>
+        <svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ REGULAR SAVER DEPOSIT ============ -->
+  <div class="screen" id="screen-saver">
+    <div class="header-detail">
+      <div class="back" onclick="showScreen('screen-dashboard')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="titles">
+        <div class="t1">Regular Saver Deposit</div>
+        <div class="t2">4530-756037-219</div>
+      </div>
+      <div class="exit" onclick="notEligible()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+    </div>
+
+    <div class="icon-actions">
+      <div class="item" onclick="notEligible()"><div class="circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><polyline points="22 6 12 13 2 6"/></svg></div>Statements</div>
+      <div class="item" onclick="notEligible()"><div class="circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1.6"/><circle cx="19" cy="5" r="1.6"/><circle cx="5" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/><circle cx="19" cy="19" r="1.6"/><circle cx="5" cy="19" r="1.6"/></svg></div>More</div>
+    </div>
+
+    <div class="content" style="padding-left:0;padding-right:0;">
+      <div class="detail-card">
+        <div class="dc-head">Regular Saver Deposit</div>
+        <div class="kv-row">
+          <div class="col"><div class="k">Account number</div><div class="v">4530-756037-219</div><div class="v name">Ahmad Hashir Faraz Syed</div></div>
+          <div class="col right"><div class="k">Available balance</div><div class="v">QAR <span id="saverBalanceVal">7,979.51</span></div></div>
+        </div>
+        <div class="kv-row">
+          <div class="col"><div class="k">Amount on hold</div><div class="v">QAR 0.00</div></div>
+          <div class="col right"><div class="k">Overdraft limit</div><div class="v">QAR 0.00</div></div>
+        </div>
+        <div class="kv-row">
+          <div class="col"><div class="k">Interest rate</div><div class="v">0.25%</div></div>
+          <div class="col right"></div>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <div class="dc-head">IBAN details</div>
+        <div class="iban-block">
+          <div class="lbl">IBAN number</div>
+          <div class="num">QA47VLQA00000000453075637219</div>
+        </div>
+        <div class="iban-actions">
+          <div class="item" onclick="notEligible()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy IBAN</div>
+          <div class="item" onclick="notEligible()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Share QR</div>
+          <div class="item" onclick="notEligible()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>Share IBAN</div>
+        </div>
+      </div>
+
+      <div class="tx-btn" onclick="openTransactions('saver')">
+        <div class="circle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+        <div class="label">View Transactions</div>
+        <svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CREDIT CARD MARGIN DEPOSIT ============ -->
+  <div class="screen" id="screen-margin">
+    <div class="header-detail">
+      <div class="back" onclick="showScreen('screen-dashboard')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="titles">
+        <div class="t1">Credit Card Margin Deposit</div>
+        <div class="t2">4530-756037-903</div>
+      </div>
+      <div class="exit" onclick="notEligible()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+    </div>
+
+    <div class="icon-actions">
+      <div class="item" onclick="notEligible()"><div class="circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><polyline points="22 6 12 13 2 6"/></svg></div>Statements</div>
+      <div class="item" onclick="notEligible()"><div class="circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1.6"/><circle cx="19" cy="5" r="1.6"/><circle cx="5" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/><circle cx="19" cy="19" r="1.6"/><circle cx="5" cy="19" r="1.6"/></svg></div>More</div>
+    </div>
+
+    <div class="content" style="padding-left:0;padding-right:0;">
+      <div class="detail-card">
+        <div class="dc-head">Credit Card Margin Deposit</div>
+        <div class="kv-row">
+          <div class="col"><div class="k">Account number</div><div class="v">4530-756037-903</div><div class="v name">Ahmad Hashir Faraz Syed</div></div>
+          <div class="col right"><div class="k">Available balance</div><div class="v">QAR 2,200.00</div></div>
+        </div>
+        <div class="kv-row">
+          <div class="col"><div class="k">Amount on hold</div><div class="v">QAR 0.00</div></div>
+          <div class="col right"><div class="k">Overdraft limit</div><div class="v">QAR 0.00</div></div>
+        </div>
+      </div>
+
+      <div class="tx-btn" onclick="notEligible()">
+        <div class="circle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+        <div class="label">View Transactions</div>
+        <svg class="chev" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TRANSACTIONS (shared: Savings + Saver) ============ -->
+  <div class="screen" id="screen-transactions">
+    <div class="header-detail">
+      <div class="back" onclick="closeTransactions()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="titles">
+        <div class="t1" id="txTitle">Transactions</div>
+        <div class="t2" id="txSubtitle">Account</div>
+      </div>
+      <div class="exit" onclick="notEligible()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+    </div>
+
+    <div class="content" style="padding-left:0;padding-right:0;">
+      <div id="txList"></div>
+    </div>
+  </div>
+
+  <!-- ============ BRANCH VISIT APPOINTMENT ============ -->
+  <div class="screen" id="screen-appointment">
+    <div class="header-detail">
+      <div class="back" onclick="showScreen('screen-dashboard')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="titles">
+        <div class="t1">Branch Visit Appointment</div>
+      </div>
+      <div class="exit" onclick="notEligible()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+    </div>
+
+    <div class="content" style="padding-left:0;padding-right:0;padding-top:0;">
+      <div class="appointment-body">
+        <h2>Branch Visit Appointment</h2>
+        <p>This page would let you book an appointment at your preferred branch.</p>
+      </div>
+      <div class="dashed-row" onclick="notEligible()">
+        <div class="dash-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        <div class="label">Book an Appointment</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CARDS ============ -->
+  <div class="screen" id="screen-cards">
+    <div class="header">
+      <div class="avatar">AH</div>
+      <div class="greet">
+        <div class="hi">Welcome back</div>
+        <div class="name">Ahmad Hashir Faraz Syed</div>
+        <div class="meta">Updated 17 Sep 2026 · 9:04 AM</div>
+      </div>
+      <div class="header-icons">
+        <div class="icon-btn" onclick="notEligible()"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <div class="icon-btn" onclick="notEligible()"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
+        <div class="icon-btn" onclick="toggleTheme()" title="Toggle theme"><svg class="theme-icon-sun" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><svg class="theme-icon-moon" style="display:none" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Cards
+      </div>
+      <div class="tab" onclick="notEligible()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Rewards
+      </div>
+      <div class="tab" onclick="notEligible()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Card Offers
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="dashed-row" onclick="notEligible()" style="border-top:none;">
+        <div class="dash-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        <div class="label">Apply for Cards</div>
+      </div>
+
+      <div class="section">
+        <div class="section-head" onclick="toggleSection('creditBody', this, '900px')">
+          <div class="left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+            Credit Cards
+          </div>
+          <div class="right-group">
+            <span class="manage-link" onclick="event.stopPropagation(); notEligible()">Manage</span>
+            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </div>
+        </div>
+        <div class="body-collapsible" id="creditBody" style="max-height:900px;">
+          <div style="padding:14px 16px 16px; display:flex; flex-direction:column; gap:14px;">
+
+            <div class="subcard">
+              <div class="subcard-head" onclick="toggleSection('summaryBody', this, '400px')">
+                <div class="left">Overall Card Account Summary</div>
+                <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              </div>
+              <div class="body-collapsible" id="summaryBody" style="max-height:400px;">
+                <div class="kv-row">
+                  <div class="col"><div class="k">Primary holder</div><div class="v name">Ahmad Hashir Faraz Syed</div></div>
+                  <div class="col right"></div>
+                </div>
+                <div class="kv-row">
+                  <div class="col"><div class="k">Overall credit limit</div><div class="v">QAR 2,000.00</div></div>
+                  <div class="col right"><div class="k">Available to spend <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="event.stopPropagation();notEligible()"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div><div class="v">QAR 2,000.00</div></div>
+                </div>
+                <div class="kv-row">
+                  <div class="col"><div class="k">Total outstanding balance</div><div class="v">QAR 0.00</div></div>
+                  <div class="col right"><div class="k">Unbilled amount <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="event.stopPropagation();notEligible()"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div><div class="v">QAR 0.00</div></div>
+                </div>
+                <div class="kv-row">
+                  <div class="col"></div>
+                  <div class="col right"><div class="k">Billed amount <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="event.stopPropagation();notEligible()"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div><div class="v">QAR 0.00</div></div>
+                </div>
+                <div class="kv-row">
+                  <div class="col"><div class="k">Payment due</div><div class="v">08 Oct 2026</div></div>
+                  <div class="col right"><div class="k">Total due amount</div><div class="v">QAR 0.00</div></div>
+                </div>
+                <div class="kv-row">
+                  <div class="col"><div class="k">Last statement balance</div><div class="v">QAR 0.00</div></div>
+                  <div class="col right"><div class="k">Total paid <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="event.stopPropagation();notEligible()"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div><div class="v">QAR 0.00</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="subcard">
+              <div class="subcard-head" onclick="toggleSection('individualBody', this, '400px')">
+                <div class="left">Individual Cards</div>
+                <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              </div>
+              <div class="body-collapsible" id="individualBody" style="max-height:400px;">
+                <div class="card-row" onclick="openActivate('diners')">
+                  <div class="info">
+                    <div class="label">Diners Club Card</div>
+                    <div class="num">3633 52XXXX XX23</div>
+                    <div class="holder">Ahmad Hashir Faraz Syed</div>
+                    <div class="tag">(Primary Card) · Card Limit: QAR 1,000</div>
+                  </div>
+                  <div class="right">
+                    <span class="activate">ACTIVATE</span>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+                <div class="card-row" onclick="openActivate('mastercard')">
+                  <div class="info">
+                    <div class="label">Mastercard Platinum</div>
+                    <div class="num">2233 59XX XXXX XX57</div>
+                    <div class="holder">Ahmad Hashir Faraz Syed</div>
+                    <div class="tag">(Add-On Card) · Card Limit: QAR 1,000</div>
+                  </div>
+                  <div class="right">
+                    <span class="activate">ACTIVATE</span>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head" onclick="toggleSection('debitBody', this, '200px')">
+          <div class="left">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+            Debit Cards
+          </div>
+          <div class="right-group">
+            <span class="manage-link" onclick="event.stopPropagation(); notEligible()">Manage</span>
+            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </div>
+        </div>
+        <div class="body-collapsible" id="debitBody" style="max-height:200px;">
+          <div class="card-row" onclick="notEligible()">
+            <div class="info">
+              <div class="label">Mastercard Classic Debit</div>
+              <div class="num">5358 XXXX XXXX 9877</div>
+              <div class="holder">Ahmad Hashir Faraz Syed</div>
+              <div class="tag">(Primary Card)</div>
+            </div>
+            <div class="right">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ ACTIVATE CARD ============ -->
+  <div class="screen" id="screen-activate">
+    <div class="header-detail">
+      <div class="back" onclick="showScreen('screen-cards')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="titles">
+        <div class="t1">Credit Card Services</div>
+      </div>
+      <div class="exit" onclick="notEligible()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+    </div>
+
+    <div class="content" style="padding-left:0;padding-right:0;">
+      <div class="appointment-body">
+        <h2>Activate</h2>
+        <p>This page allows you to activate your card.</p>
+      </div>
+
+      <div class="detail-card">
+        <div class="dc-head">Card Details</div>
+        <div class="activate-row"><div class="label">Card Type</div><div class="value" id="actCardType">Diners Club Card</div></div>
+        <div class="activate-row"><div class="label">Card Number</div><div class="value" id="actCardNumber">3633 52XXXX XX23</div></div>
+        <div class="activate-row"><div class="label">Card Holder</div><div class="value">Ahmad Hashir Faraz Syed</div></div>
+        <div class="activate-row"><div class="label">Card Status</div><div class="value status">PENDING ACTIVATION</div></div>
+      </div>
+
+      <div class="detail-card">
+        <div class="dc-head">Enter Card Details</div>
+        <div class="activate-form-body">
+          <p>Enter the card expiry date, CVV and the last 4 digits of the card.</p>
+          <div class="activate-inputs-row">
+            <input type="text" placeholder="MM/YY" maxlength="5">
+            <input type="text" placeholder="CVV/CVV2" maxlength="4">
+          </div>
+          <div class="last4-label">Last 4 digits of card</div>
+          <div class="last4-boxes">
+            <input type="text" maxlength="1" oninput="if(this.value.length===1 && this.nextElementSibling) this.nextElementSibling.focus()">
+            <input type="text" maxlength="1" oninput="if(this.value.length===1 && this.nextElementSibling) this.nextElementSibling.focus()">
+            <input type="text" maxlength="1" oninput="if(this.value.length===1 && this.nextElementSibling) this.nextElementSibling.focus()">
+            <input type="text" maxlength="1" oninput="if(this.value.length===1 && this.nextElementSibling) this.nextElementSibling.focus()">
+          </div>
+          <div class="fill-details-link" onclick="notEligible()">Click here to fill card details</div>
+        </div>
+      </div>
+
+      <button class="activate-submit" onclick="notEligible()">Submit</button>
+    </div>
+  </div>
+
+  <div class="bottom-nav" id="bottomNav" style="display:none;">
+    <div class="nav-item active" data-nav="accounts" onclick="showScreen('screen-dashboard')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Accounts
+      <div class="dot"></div>
+    </div>
+    <div class="nav-item" data-nav="cards" onclick="showScreen('screen-cards')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Cards
+    </div>
+    <div class="nav-item" data-nav="transfers" onclick="notEligible()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      Transfers
+    </div>
+    <div class="nav-item" data-nav="payments" onclick="notEligible()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      Payments
+    </div>
+    <div class="nav-item" data-nav="services" onclick="notEligible()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Services
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="ineligibleModal">
+    <div class="modal-card">
+      <div class="modal-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.5-7.13"/><polyline points="21 3 21 9 15 9"/></svg>
+      </div>
+      <p>Please update the app to the latest version to use this feature.</p>
+      <button onclick="closeModal()">Okay</button>
+    </div>
+  </div>
+
+
+</div>
+
+<script>
+  /* ---------------- Seed data (real statements, first load only) ---------------- */
+  const SEED_DATA = {
+    savings: {
+      balance: 52513.20,
+      transactions: [
+        {id:'s4',  date:'10 Sep 2026', desc:'Outgoing payment — Watch',      amount:-550,    bal:52513.20},
+        {id:'s5',  date:'10 Sep 2026', desc:'Transfer charge (Fawran)',      amount:-0.5,    bal:53063.20},
+        {id:'s6',  date:'26 Aug 2026', desc:'Salary credit — Farogh Zakaria', amount:4500,   bal:53063.70},
+        {id:'s7',  date:'23 Aug 2026', desc:'Outgoing payment — GM',         amount:-220,    bal:48563.70},
+        {id:'s8',  date:'23 Aug 2026', desc:'Transfer charge (Fawran)',      amount:-0.5,    bal:48783.70},
+        {id:'s9',  date:'19 Aug 2026', desc:'Security deposit — CC limit block', amount:-1200, bal:48784.20},
+        {id:'s10', date:'16 Aug 2026', desc:'Outgoing payment — Credit card deposit', amount:-2200, bal:49984.20},
+        {id:'s11', date:'16 Aug 2026', desc:'Transfer charge (Fawran)',      amount:-2,      bal:52184.20},
+        {id:'s12', date:'16 Aug 2026', desc:'Standing order transfer',      amount:-500,    bal:52186.20},
+        {id:'s13', date:'26 Jul 2026', desc:'Salary credit — Farogh Zakaria', amount:4500,   bal:52686.20},
+        {id:'s14', date:'16 Jul 2026', desc:'Standing order transfer',      amount:-500,    bal:48186.20},
+        {id:'s15', date:'12 Jul 2026', desc:'Payment credit',               amount:10257.20,bal:48686.20},
+        {id:'s16', date:'07 Jul 2026', desc:'Outgoing payment — Watch',      amount:-700,    bal:38429.00},
+        {id:'s17', date:'07 Jul 2026', desc:'Transfer charge (Fawran)',      amount:-0.5,    bal:39129.00},
+        {id:'s18', date:'25 Jun 2026', desc:'Salary credit — Farogh Zakaria', amount:4500,   bal:39129.50},
+        {id:'s19', date:'24 Jun 2026', desc:"Outgoing payment — Nando's",   amount:-120,    bal:34629.50},
+        {id:'s20', date:'24 Jun 2026', desc:'Transfer charge (Fawran)',      amount:-0.5,    bal:34749.50},
+        {id:'s21', date:'14 Jun 2026', desc:'Standing order transfer',      amount:-500,    bal:34750.00},
+        {id:'s22', date:'25 May 2026', desc:'Salary credit — Farogh Zakaria', amount:4500,   bal:35250.00},
+        {id:'s23', date:'17 May 2026', desc:'Outgoing payment — Fine',      amount:-500,    bal:30750.00},
+        {id:'s24', date:'14 May 2026', desc:'Standing order transfer',      amount:-500,    bal:31250.00},
+        {id:'s25', date:'14 Apr 2026', desc:'Standing order transfer',      amount:-500,    bal:31750.00},
+        {id:'s26', date:'25 Mar 2026', desc:'Salary credit — Farogh Zakaria', amount:4750,   bal:32250.00}
+      ]
+    },
+    saver: {
+      balance: 7979.51,
+      transactions: [
+        {id:'r1',  date:'14 Sep 2026', desc:'Standing order credit',        amount:500,   bal:7979.51},
+        {id:'r2',  date:'01 Sep 2026', desc:'Interest credit',              amount:1.52,  bal:7479.51},
+        {id:'r3',  date:'16 Aug 2026', desc:'Standing order credit',        amount:500,   bal:7477.99},
+        {id:'r4',  date:'02 Aug 2026', desc:'Interest credit',              amount:1.52,  bal:6977.99},
+        {id:'r5',  date:'26 Jul 2026', desc:'Transfer charge',              amount:-4,    bal:7076.47},
+        {id:'r6',  date:'26 Jul 2026', desc:'Outgoing payment — Personal',  amount:-100,  bal:6976.47},
+        {id:'r7',  date:'16 Jul 2026', desc:'Standing order credit',        amount:500,   bal:7080.47},
+        {id:'r8',  date:'01 Jul 2026', desc:'Interest credit',              amount:1.56,  bal:6580.47},
+        {id:'r9',  date:'28 Jun 2026', desc:'Transfer charge',              amount:-4,    bal:7858.91},
+        {id:'r10', date:'28 Jun 2026', desc:'Outgoing payment — CFI Payment (Haider)', amount:-1280, bal:6578.91},
+        {id:'r11', date:'14 Jun 2026', desc:'Standing order credit',        amount:500,   bal:7862.91},
+        {id:'r12', date:'01 Jun 2026', desc:'Interest credit',              amount:1.44,  bal:7362.91},
+        {id:'r13', date:'14 May 2026', desc:'Standing order credit',        amount:500,   bal:7361.47},
+        {id:'r14', date:'03 May 2026', desc:'Interest credit',              amount:1.48,  bal:6861.47},
+        {id:'r15', date:'14 Apr 2026', desc:'Standing order credit',        amount:500,   bal:6859.99},
+        {id:'r16', date:'01 Apr 2026', desc:'Interest credit',              amount:1.32,  bal:6359.99}
+      ]
+    }
+  };
+
+  function getAccountData(key){
+    try{
+      const raw = localStorage.getItem('vl_tx_'+key);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    const seeded = JSON.parse(JSON.stringify(SEED_DATA[key]));
+    saveAccountData(key, seeded);
+    return seeded;
+  }
+  function saveAccountData(key, data){
+    try{ localStorage.setItem('vl_tx_'+key, JSON.stringify(data)); }catch(e){}
+  }
+  function formatQAR(n){
+    const sign = n < 0 ? '-' : '';
+    return sign + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  function syncBalances(){
+    const sav = getAccountData('savings');
+    const sv  = getAccountData('saver');
+    const dashSav = document.getElementById('dashSavingsAmt');
+    const dashSv  = document.getElementById('dashSaverAmt');
+    const detSav  = document.getElementById('savingsBalanceVal');
+    const detSv   = document.getElementById('saverBalanceVal');
+    if(dashSav) dashSav.textContent = formatQAR(sav.balance);
+    if(dashSv)  dashSv.textContent  = formatQAR(sv.balance);
+    if(detSav)  detSav.textContent  = formatQAR(sav.balance);
+    if(detSv)   detSv.textContent   = formatQAR(sv.balance);
+  }
+
+  /* ---------------- Ineligible modal ---------------- */
+  function notEligible(){
+    document.getElementById('ineligibleModal').classList.add('show');
+  }
+  function closeModal(){
+    document.getElementById('ineligibleModal').classList.remove('show');
+  }
+
+  /* ---------------- Collapsible sections ---------------- */
+  function toggleSection(id, headEl, openHeight){
+    const el = document.getElementById(id);
+    const isOpen = el.style.maxHeight && el.style.maxHeight !== '0px';
+    el.style.maxHeight = isOpen ? '0px' : (openHeight || '600px');
+    headEl.classList.toggle('collapsed', isOpen);
+  }
+
+  /* ---------------- Screen routing ---------------- */
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById('frame').scrollTo(0,0);
+    window.scrollTo(0,0);
+
+    const navMap = { 'screen-dashboard':'accounts', 'screen-savings':'accounts', 'screen-saver':'accounts', 'screen-margin':'accounts', 'screen-transactions':'accounts', 'screen-appointment':'services', 'screen-cards':'cards', 'screen-activate':'cards' };
+    const target = navMap[id] || 'accounts';
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.nav === target));
+  }
+
+  let currentTxAccount = 'savings';
+  let txReturnScreen = 'screen-savings';
+
+  function openTransactions(key){
+    currentTxAccount = key;
+    txReturnScreen = key === 'savings' ? 'screen-savings' : 'screen-saver';
+    document.getElementById('txTitle').textContent = key === 'savings' ? 'Savings Account' : 'Regular Saver Deposit';
+    document.getElementById('txSubtitle').textContent = key === 'savings' ? '4530-756037-482' : '4530-756037-219';
+    renderTxList();
+    showScreen('screen-transactions');
+  }
+  function closeTransactions(){
+    showScreen(txReturnScreen);
+  }
+
+  function renderTxList(){
+    const data = getAccountData(currentTxAccount);
+    const list = document.getElementById('txList');
+    if(!data.transactions.length){
+      list.innerHTML = '<div class="tx-empty">No transactions yet.</div>';
+      return;
+    }
+    list.innerHTML = data.transactions.map(tx => {
+      const isCredit = tx.amount >= 0;
+      const amtStr = (isCredit ? '+' : '-') + formatQAR(Math.abs(tx.amount)).replace('-','');
+      return '<div class="tx-row">' +
+        '<div class="left">' +
+          '<div class="date">' + tx.date + '</div>' +
+          '<div class="desc">' + escapeHtml(tx.desc) + '</div>' +
+          '<div class="bal">Balance after: QAR ' + formatQAR(tx.bal) + '</div>' +
+        '</div>' +
+        '<div class="right">' +
+          '<div class="amt ' + (isCredit?'credit':'debit') + '">' + amtStr + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+  function escapeHtml(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  /* ---------------- Theme (manual toggle only — never tied to system preference) ---------------- */
+  function applyTheme(){
+    let theme = 'light';
+    try{ theme = localStorage.getItem('vl_theme') || 'light'; }catch(e){}
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.style.colorScheme = theme;
+    const metaCS = document.querySelector('meta[name="color-scheme"]');
+    if(metaCS) metaCS.setAttribute('content', theme);
+    const isDark = theme === 'dark';
+    document.querySelectorAll('.theme-icon-sun').forEach(el => el.style.display = isDark ? 'none' : 'block');
+    document.querySelectorAll('.theme-icon-moon').forEach(el => el.style.display = isDark ? 'block' : 'none');
+  }
+  function toggleTheme(){
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    try{ localStorage.setItem('vl_theme', next); }catch(e){}
+    applyTheme();
+  }
+
+  /* ---------------- Activate card ---------------- */
+  const CARD_DATA = {
+    diners:     { type:'Diners Club Card',   number:'3633 52XXXX XX23' },
+    mastercard: { type:'Mastercard Platinum', number:'2233 59XX XXXX XX57' }
+  };
+  function openActivate(key){
+    const c = CARD_DATA[key];
+    document.getElementById('actCardType').textContent = c.type;
+    document.getElementById('actCardNumber').textContent = c.number;
+    showScreen('screen-activate');
+  }
+
+  /* ---------------- Splash ---------------- */
+  function enterApp(){
+    document.getElementById('bottomNav').style.display = 'flex';
+    showScreen('screen-dashboard');
+  }
+
+  /* ---------------- One-time migration: trim savings history to the -550 Watch entry ---------------- */
+  (function migrateSavingsHistory(){
+    try{
+      if(!localStorage.getItem('vl_seed_v4')){
+        localStorage.setItem('vl_tx_savings', JSON.stringify(SEED_DATA.savings));
+        localStorage.setItem('vl_seed_v4', '1');
+      }
+    }catch(e){}
+  })();
+
+  /* ---------------- Last login ---------------- */
+  function formatLoginTime(d){
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const day = d.getDate();
+    const dayStr = day < 10 ? '0' + day : day;
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    let hours = d.getHours();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12; if(hours === 0) hours = 12;
+    const hoursStr = hours < 10 ? '0' + hours : hours;
+    const mins = d.getMinutes();
+    const minsStr = mins < 10 ? '0' + mins : mins;
+    return dayStr + ' ' + month + ' ' + year + ' at ' + hoursStr + ':' + minsStr + ' ' + ampm;
+  }
+  function updateLastLogin(){
+    let stored = null;
+    try{ stored = localStorage.getItem('vl_last_login'); }catch(e){}
+    const nowFormatted = formatLoginTime(new Date());
+    const displayText = 'Last login: ' + (stored || nowFormatted);
+    document.querySelectorAll('.greet .meta').forEach(el => el.textContent = displayText);
+    try{ localStorage.setItem('vl_last_login', nowFormatted); }catch(e){}
+  }
+
+  /* ---------------- Init ---------------- */
+  applyTheme();
+  updateLastLogin();
+  syncBalances();
+</script>
+
+</body>
+</html>
