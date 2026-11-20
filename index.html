@@ -1105,4 +1105,178 @@
         {id:'r1',  date:'14 Sep 2026', desc:'Standing order credit',        amount:500,   bal:7979.51},
         {id:'r2',  date:'01 Sep 2026', desc:'Interest credit',              amount:1.52,  bal:7479.51},
         {id:'r3',  date:'16 Aug 2026', desc:'Standing order credit',        amount:500,   bal:7477.99},
-        {id:'r4',  date:'02 Aug 2026', desc:'Interest credit',              amount:1.52,
+        {id:'r4',  date:'02 Aug 2026', desc:'Interest credit',              amount:1.52,  bal:6977.99},
+        {id:'r5',  date:'26 Jul 2026', desc:'Transfer charge',              amount:-4,    bal:7076.47},
+        {id:'r6',  date:'26 Jul 2026', desc:'Outgoing payment — Personal',  amount:-100,  bal:6976.47},
+        {id:'r7',  date:'16 Jul 2026', desc:'Standing order credit',        amount:500,   bal:7080.47},
+        {id:'r8',  date:'01 Jul 2026', desc:'Interest credit',              amount:1.56,  bal:6580.47},
+        {id:'r9',  date:'28 Jun 2026', desc:'Transfer charge',              amount:-4,    bal:7858.91},
+        {id:'r10', date:'28 Jun 2026', desc:'Outgoing payment — CFI Payment (Haider)', amount:-1280, bal:6578.91},
+        {id:'r11', date:'14 Jun 2026', desc:'Standing order credit',        amount:500,   bal:7862.91},
+        {id:'r12', date:'01 Jun 2026', desc:'Interest credit',              amount:1.44,  bal:7362.91},
+        {id:'r13', date:'14 May 2026', desc:'Standing order credit',        amount:500,   bal:7361.47},
+        {id:'r14', date:'03 May 2026', desc:'Interest credit',              amount:1.48,  bal:6861.47},
+        {id:'r15', date:'14 Apr 2026', desc:'Standing order credit',        amount:500,   bal:6859.99},
+        {id:'r16', date:'01 Apr 2026', desc:'Interest credit',              amount:1.32,  bal:6359.99}
+      ]
+    }
+  };
+
+  function getAccountData(key){
+    try{
+      const raw = localStorage.getItem('vl_tx_'+key);
+      if(raw) return JSON.parse(raw);
+    }catch(e){}
+    const seeded = JSON.parse(JSON.stringify(SEED_DATA[key]));
+    saveAccountData(key, seeded);
+    return seeded;
+  }
+  function saveAccountData(key, data){
+    try{ localStorage.setItem('vl_tx_'+key, JSON.stringify(data)); }catch(e){}
+  }
+  function formatQAR(n){
+    const sign = n < 0 ? '-' : '';
+    return sign + Math.abs(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  function syncBalances(){
+    const sav = getAccountData('savings');
+    const sv  = getAccountData('saver');
+    const dashSav = document.getElementById('dashSavingsAmt');
+    const dashSv  = document.getElementById('dashSaverAmt');
+    const detSav  = document.getElementById('savingsBalanceVal');
+    const detSv   = document.getElementById('saverBalanceVal');
+    if(dashSav) dashSav.textContent = formatQAR(sav.balance);
+    if(dashSv)  dashSv.textContent  = formatQAR(sv.balance);
+    if(detSav)  detSav.textContent  = formatQAR(sav.balance);
+    if(detSv)   detSv.textContent   = formatQAR(sv.balance);
+  }
+
+  /* ---------------- Ineligible modal ---------------- */
+  function notEligible(){
+    document.getElementById('ineligibleModal').classList.add('show');
+  }
+  function closeModal(){
+    document.getElementById('ineligibleModal').classList.remove('show');
+  }
+
+  /* ---------------- Collapsible sections ---------------- */
+  function toggleSection(id, headEl, openHeight){
+    const el = document.getElementById(id);
+    const isOpen = el.style.maxHeight && el.style.maxHeight !== '0px';
+    el.style.maxHeight = isOpen ? '0px' : (openHeight || '600px');
+    headEl.classList.toggle('collapsed', isOpen);
+  }
+
+  /* ---------------- Screen routing ---------------- */
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.getElementById('frame').scrollTo(0,0);
+    window.scrollTo(0,0);
+
+    const navMap = { 'screen-dashboard':'accounts', 'screen-savings':'accounts', 'screen-saver':'accounts', 'screen-margin':'accounts', 'screen-transactions':'accounts', 'screen-appointment':'services', 'screen-cards':'cards', 'screen-activate':'cards' };
+    const target = navMap[id] || 'accounts';
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.nav === target));
+  }
+
+  let currentTxAccount = 'savings';
+  let txReturnScreen = 'screen-savings';
+
+  function openTransactions(key){
+    currentTxAccount = key;
+    txReturnScreen = key === 'savings' ? 'screen-savings' : 'screen-saver';
+    document.getElementById('txTitle').textContent = key === 'savings' ? 'Savings Account' : 'Regular Saver Deposit';
+    document.getElementById('txSubtitle').textContent = key === 'savings' ? '4530-756037-482' : '4530-756037-219';
+    renderTxList();
+    showScreen('screen-transactions');
+  }
+  function closeTransactions(){
+    showScreen(txReturnScreen);
+  }
+
+  function renderTxList(){
+    const data = getAccountData(currentTxAccount);
+    const list = document.getElementById('txList');
+    if(!data.transactions.length){
+      list.innerHTML = '<div class="tx-empty">No transactions yet.</div>';
+      return;
+    }
+    list.innerHTML = data.transactions.map(tx => {
+      const isCredit = tx.amount >= 0;
+      const amtStr = (isCredit ? '+' : '-') + formatQAR(Math.abs(tx.amount)).replace('-','');
+      return '<div class="tx-row">' +
+        '<div class="left">' +
+          '<div class="date">' + tx.date + '</div>' +
+          '<div class="desc">' + escapeHtml(tx.desc) + '</div>' +
+          '<div class="bal">Balance after: QAR ' + formatQAR(tx.bal) + '</div>' +
+        '</div>' +
+        '<div class="right">' +
+          '<div class="amt ' + (isCredit?'credit':'debit') + '">' + amtStr + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+  function escapeHtml(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  /* ---------------- Activate card ---------------- */
+  const CARD_DATA = {
+    diners:     { type:'Diners Club Card',   number:'3633 52XXXX XX23' },
+    mastercard: { type:'Mastercard Platinum', number:'2233 59XX XXXX XX57' }
+  };
+  function openActivate(key){
+    const c = CARD_DATA[key];
+    document.getElementById('actCardType').textContent = c.type;
+    document.getElementById('actCardNumber').textContent = c.number;
+    showScreen('screen-activate');
+  }
+
+  /* ---------------- Splash ---------------- */
+  function enterApp(){
+    document.getElementById('bottomNav').style.display = 'flex';
+    showScreen('screen-dashboard');
+  }
+
+  /* ---------------- One-time migration: trim savings history to the -550 Watch entry ---------------- */
+  (function migrateSavingsHistory(){
+    try{
+      if(!localStorage.getItem('vl_seed_v4')){
+        localStorage.setItem('vl_tx_savings', JSON.stringify(SEED_DATA.savings));
+        localStorage.setItem('vl_seed_v4', '1');
+      }
+    }catch(e){}
+  })();
+
+  /* ---------------- Last login ---------------- */
+  function formatLoginTime(d){
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const day = d.getDate();
+    const dayStr = day < 10 ? '0' + day : day;
+    const month = months[d.getMonth()];
+    const year = d.getFullYear();
+    let hours = d.getHours();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12; if(hours === 0) hours = 12;
+    const hoursStr = hours < 10 ? '0' + hours : hours;
+    const mins = d.getMinutes();
+    const minsStr = mins < 10 ? '0' + mins : mins;
+    return dayStr + ' ' + month + ' ' + year + ' at ' + hoursStr + ':' + minsStr + ' ' + ampm;
+  }
+  function updateLastLogin(){
+    let stored = null;
+    try{ stored = localStorage.getItem('vl_last_login'); }catch(e){}
+    const nowFormatted = formatLoginTime(new Date());
+    const displayText = 'Last login: ' + (stored || nowFormatted);
+    document.querySelectorAll('.greet .meta').forEach(el => el.textContent = displayText);
+    try{ localStorage.setItem('vl_last_login', nowFormatted); }catch(e){}
+  }
+
+  /* ---------------- Init ---------------- */
+  updateLastLogin();
+  syncBalances();
+</script>
+
+</body>
+</html>
