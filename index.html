@@ -1074,6 +1074,8 @@
     savings: {
       balance: 61513.20,
       transactions: [
+        {id:'s2',  date:'27 Oct 2026', desc:'Salary credit — Farogh Zakaria', amount:4500,   bal:61513.20},
+        {id:'s3',  date:'30 Sep 2026', desc:'Salary credit — Farogh Zakaria', amount:4500,   bal:57013.20},
         {id:'s4',  date:'10 Sep 2026', desc:'Outgoing payment — Watch',      amount:-550,    bal:52513.20},
         {id:'s5',  date:'10 Sep 2026', desc:'Transfer charge (Fawran)',      amount:-0.5,    bal:53063.20},
         {id:'s6',  date:'26 Aug 2026', desc:'Salary credit — Farogh Zakaria', amount:4500,   bal:53063.70},
@@ -1242,9 +1244,9 @@
   /* ---------------- One-time migration: trim savings history to the -550 Watch entry ---------------- */
   (function migrateSavingsHistory(){
     try{
-      if(!localStorage.getItem('vl_seed_v4')){
+      if(!localStorage.getItem('vl_seed_v5')){
         localStorage.setItem('vl_tx_savings', JSON.stringify(SEED_DATA.savings));
-        localStorage.setItem('vl_seed_v4', '1');
+        localStorage.setItem('vl_seed_v5', '1');
       }
     }catch(e){}
   })();
